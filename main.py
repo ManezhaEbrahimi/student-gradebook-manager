@@ -260,3 +260,145 @@ class Gradebook:
         del self.comments[student_id]
         return True
 
+def show_menu():
+    print("\n--- GRADEBOOK MENU ---")
+    print("1. Register Student")
+    print("2. View Registered Students")
+    print("3. Create Course")
+    print("4. Enroll Student in Course")
+    print("5. Add Assessment")
+    print("6. Record Student Score")
+    print("7. Add Teacher Comment (Custom Feature)")
+    print("8. View Student Report")
+    print("9. Search Student")
+    print("10. Remove Student")
+    print("11. Update Student Email")
+    print("12. View Course Info")
+    print("0. Exit")
+
+
+def main():
+    my_gradebook = Gradebook()
+    s1 = Student("S001", "Manezha Ebrahimi", "mnz.ebrahim1@gmail.com")
+    my_gradebook.add_student(s1)
+    c1 = Course("PY101", "Python Programming")
+    my_gradebook.add_course(c1)
+    my_gradebook.enroll_student("S001", "PY101")
+    my_gradebook.add_assessment("PY101", Quiz("Quiz 1", 10))
+    my_gradebook.record_grade("S001", "PY101", "Quiz 1", 8)
+
+    while True:
+        show_menu()
+        choice = input("Enter option (0-12): ").strip()
+        if choice == "1":
+            s_id = input("Student ID: ").strip()
+            name = input("Name: ").strip()
+            email = input("Email: ").strip()
+            if s_id and name:
+                s = Student(s_id, name, email)
+                if my_gradebook.add_student(s):
+                    print("Student added!")
+                else:
+                    print("ID already exists.")
+            else:
+                print("ID and Name cannot be empty.")
+        elif choice == "2":
+            if not my_gradebook.students:
+                print("No students registered.")
+            for student in my_gradebook.students.values():
+                student.display_info()
+        elif choice == "3":
+            code = input("Course Code: ").strip().upper()
+            name = input("Course Name: ").strip()
+            if code and name:
+                c = Course(code, name)
+                if my_gradebook.add_course(c):
+                    print("Course added!")
+                else:
+                    print("Course code already exists.")
+        elif choice == "4":
+            s_id = input("Student ID: ").strip()
+            c_code = input("Course Code: ").strip().upper()
+            if my_gradebook.enroll_student(s_id, c_code):
+                print("Student enrolled!")
+            else:
+                print("Failed to enroll. Check ID and Course Code.")
+        elif choice == "5":
+            c_code = input("Course Code: ").strip().upper()
+            if c_code not in my_gradebook.courses:
+                print("Course not found.")
+                continue
+            title = input("Assessment Title (e.g. Midterm): ").strip()
+            try:
+                max_score = float(input("Max Score: "))
+            except ValueError:
+                print("Must be a number.")
+                continue
+            print("Type: (1) Quiz (2) Exam (3) Project")
+            t = input("Choice: ").strip()
+            if t == "1":
+                asm = Quiz(title, max_score)
+            elif t == "2":
+                asm = Exam(title, max_score)
+            elif t == "3":
+                asm = Project(title, max_score)
+            else:
+                asm = Assessment(title, max_score)
+            my_gradebook.add_assessment(c_code, asm)
+            print("Assessment added to course!")
+        elif choice == "6":
+            s_id = input("Student ID: ").strip()
+            c_code = input("Course Code: ").strip().upper()
+            title = input("Assessment Title: ").strip()
+            try:
+                score = float(input("Score: "))
+            except ValueError:
+                print("Must be a number.")
+                continue
+            print(my_gradebook.record_grade(s_id, c_code, title, score))
+        elif choice == "7":
+            s_id = input("Student ID: ").strip()
+            c_code = input("Course Code: ").strip().upper()
+            comment = input("Teacher Comment: ").strip()
+            if my_gradebook.add_comment(s_id, c_code, comment):
+                print("Comment added!")
+            else:
+                print("Could not add comment.")
+        elif choice == "8":
+            s_id = input("Student ID: ").strip()
+            my_gradebook.show_report(s_id)
+        elif choice == "9":
+            q = input("Enter Name or ID to search: ").strip()
+            my_gradebook.search_student(q)
+        elif choice == "10":
+            s_id = input("Student ID to delete: ").strip()
+            if my_gradebook.delete_student(s_id):
+                print("Student removed.")
+            else:
+                print("Student not found.")
+        elif choice == "11":
+            s_id = input("Student ID: ").strip()
+            if s_id in my_gradebook.students:
+                new_email = input("New Email: ").strip()
+                student = my_gradebook.students[s_id]
+                if student.set_email(new_email):
+                    print("Email updated!")
+                else:
+                    print("Invalid email format.")
+            else:
+                print("Student not found.")
+        elif choice == "12":
+            c_code = input("Course Code: ").strip().upper()
+            if c_code in my_gradebook.courses:
+                my_gradebook.courses[c_code].display_info()
+            else:
+                print("Course not found.")
+        elif choice == "0":
+            print("Goodbye!")
+            break
+        else:
+            print("Invalid option!")
+
+
+if __name__ == "__main__":
+    main()
